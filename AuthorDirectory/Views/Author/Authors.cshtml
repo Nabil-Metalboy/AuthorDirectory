@@ -38,10 +38,10 @@
                             <td>
                                 <a href="{{a.link}}" target="_blank"> {{ a.name }}'s Wiki</a>
                             </td>
-
+                            
                             <td>
-                                <button type="submit" class="btn btn-info" style="margin-bottom:7px;margin-top:7px;cursor:pointer;" ng-show="addFavBtnShow" ng-click="addFavorite(a._id)"><strong>Add Favorite</strong></button>
-                                <button type="submit" class="btn btn-danger" style="margin-bottom:7px;margin-top:7px;cursor:pointer;" ng-show="removeFavBtnShow" ng-click=""><strong>Remove Favorite</strong></button>
+                                <button type="submit" class="btn btn-info" style="margin-bottom:7px;margin-top:7px;cursor:pointer;" ng-show="addFav" ng-click="addFavorite(a._id)"><strong>Add Favorite</strong></button>
+                                <button type="submit"  class="btn btn-danger" style="margin-bottom:7px;margin-top:7px;cursor:pointer;" ng-show="removeFav"  ng-click=""><strong>Remove Favorite</strong></button>
                             </td>
 
                         </tr>
@@ -57,7 +57,8 @@
 <script type="text/javascript">
     var app = angular.module('authorInfoModule', ['ngAnimate', 'ngSanitize', 'ui.bootstrap', 'ngStorage']);
     app.controller('authorInfoController', function ($scope, $http, $localStorage, $window) {
-
+        $scope.removeFav = false;
+        $scope.addFav = true;
         var skip = 0;
         //$scope.totalItems = 70;
         //$scope.currentPage = 1;
@@ -93,15 +94,24 @@
 
         }
         $localStorage.data = [];
-
+        var store = {};
+        $scope.flag = false;
         $scope.addFavorite = function (id) {
+            if (!store[id]) {
+                $scope.favoriteAuthor = $scope.authors.filter(au => au._id == id);
 
-            $scope.favoriteAuthor = $scope.authors.filter(au => au._id == id);
+                $localStorage.data.push($scope.favoriteAuthor[0]);
+                store[id] = true;
+                $scope.flag = true;
+                $scope.removeFav = true;
+                
+            }
+            else {
+                alert("Already added to favourite");
+            }
 
-            $localStorage.data.push($scope.favoriteAuthor[0]);
-
-            //$window.location.href= "/Author/FavouriteAuthors";
         }
+        
 
 
     });
