@@ -10,13 +10,14 @@
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
 <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.js"></script>
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.11/ngStorage.min.js" integrity="sha512-/uxeq6VcJ+do+PtGgWZwRL/Z63r53cK6yek3NzvQwce6aCeheKRD59IuRsEFuNU8b0B/lZ6fUx1fncf0wMIm5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <!--Author Info-->
 <div class="row" style="display:flex;margin-top:10px;">
     <div class="col-lg-12" ng-app="authorInfoModule">
         <div class="ibox" ng-controller="authorInfoController">
             <div style="margin: 20px 0px 10px 0px">
-                <table class="table table-bordered table-striped table-hover" ng-init="getAuthor()">
+                <table ng-model="author.table" class="table table-bordered table-striped table-hover" ng-init="getAuthor(0)">
                     <thead>
                         <tr>
 
@@ -35,57 +36,75 @@
                             <td>{{ a.name }}</td>
                             <td>{{ a.bio }}</td>
                             <td>
-                                <a>{{a.link}}</a>
+                                <a href="{{a.link}}" target="_blank"> {{ a.name }}'s Wiki</a>
                             </td>
 
                             <td>
-                                <button type="submit" class="btn btn-info" style="margin-bottom:7px;margin-top:7px;cursor:pointer;" ng-click=""><strong>Add Favorite</strong></button>
-                                <button type="submit" class="btn btn-danger" style="margin-bottom:7px;margin-top:7px;cursor:pointer;" ng-click=""><strong>Remove Favorite</strong></button>
+                                <button type="submit" class="btn btn-info" style="margin-bottom:7px;margin-top:7px;cursor:pointer;" ng-show="addFavBtnShow" ng-click="addFavorite(a._id)"><strong>Add Favorite</strong></button>
+                                <button type="submit" class="btn btn-danger" style="margin-bottom:7px;margin-top:7px;cursor:pointer;" ng-show="removeFavBtnShow" ng-click=""><strong>Remove Favorite</strong></button>
                             </td>
 
                         </tr>
                     </tbody>
                 </table>
-                <ul uib-pagination total-items="totalItems" ng-model="currentPage" ng-change="pageChanged(10)"></ul>
-                
+                <ul uib-pagination total-items="totalItems" ng-model="currentPage" items-per-page="20" ng-change="pageChanged()"></ul>
+
             </div>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
-    var app = angular.module('authorInfoModule', ['ngAnimate', 'ngSanitize', 'ui.bootstrap']);
-    app.controller('authorInfoController', function ($scope, $http, $log) {
+    var app = angular.module('authorInfoModule', ['ngAnimate', 'ngSanitize', 'ui.bootstrap', 'ngStorage']);
+    app.controller('authorInfoController', function ($scope, $http, $localStorage, $window) {
 
-        var skip;
-        $scope.totalItems = 700;
-        $scope.currentPage = 1;
+        var skip = 0;
+        //$scope.totalItems = 70;
+        //$scope.currentPage = 1;
 
-        $scope.setPage = function (pageNo) {
-            $scope.currentPage = pageNo;
-        };
+        //$scope.setPage = function (pageNo) {
+        //    $scope.currentPage = pageNo;
+        //};
 
-        $scope.pageChanged = function (skipQuantity) {
+        $scope.pageChanged = function () {
             //$log.log('Page changed to: ' + $scope.currentPage);
-            $log.skip += skipQuantity;
+            $scope.skip = ($scope.currentPage * 20) - 20;
+
+            $scope.getAuthor(skip);
+
+            //window.location.reload();
+            console.log($scope.currentPage);
         };
 
-        $scope.getAuthor = function () {
+        $scope.getAuthor = function (skip) {
 
             //let url = 'https://api.quotable.io/authors';
-            let url = 'https://api.quotable.io/authors?limit=10&skip='+skip;
+            let url = 'https://api.quotable.io/authors?limit=20&skip=' + skip;
 
             $http.get(url, { headers: { 'Content-Type': 'application/json' } })
                 .then(function (response) {
 
                     $scope.authors = response.data.results;
+                    $scope.totalItems = response.data.totalCount;
 
 
                 }, function error(response) {
                 })
 
         }
+        $localStorage.data = [];
+
+        $scope.addFavorite = function (id) {
+
+            $scope.favoriteAuthor = $scope.authors.filter(au => au._id == id);
+
+            $localStorage.data.push($scope.favoriteAuthor[0]);
+
+            //$window.location.href= "/Author/FavouriteAuthors";
+        }
 
 
     });
+
+
 </script>

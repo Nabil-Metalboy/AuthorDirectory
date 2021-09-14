@@ -4,5 +4,59 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>FavouriteAuthors</h2>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.11/ngStorage.min.js" integrity="sha512-/uxeq6VcJ+do+PtGgWZwRL/Z63r53cK6yek3NzvQwce6aCeheKRD59IuRsEFuNU8b0B/lZ6fUx1fncf0wMIm5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<div ng-app="favoriteAuthorModule">
+    <div ng-controller="favoriteAuthorController">
+        <table ng-model="author.table" class="table table-bordered table-striped table-hover" ng-init="favAuthor()">
+            <thead>
+                <tr>
+
+                    <th>Name</th>
+                    <th>Bio</th>
+                    <th>Link</th>
+                    
+
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr ng-repeat="fa in favoriteAuthors">
+
+
+                    <td>{{ fa.name }}</td>
+                    <td>{{ fa.bio }}</td>
+                    <td>
+                        <a href="{{fa.link}}" target="_blank"> {{ fa.name }}'s Wiki</a>
+                    </td>
+
+                    
+
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    var app = angular.module('favoriteAuthorModule', ['ngStorage']);
+    app.controller('favoriteAuthorController', function ($scope, $http, $localStorage) {
+
+        $scope.favAuthor = () => {
+            $scope.favoriteAuthors = JSON.parse(localStorage.getItem('ngStorage-data'));
+
+
+            console.log($scope.favoriteAuthors);
+        }
+        //$scope.favoriteAuthors = localStorage.getItem('ngStorage-data');
+
+        
+
+    });
+</script>
+
 
